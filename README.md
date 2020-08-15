@@ -7,5 +7,5 @@ Data is stored in Db4O database.
 
 Step 1: Open Netbeans/Eclipse etc. <br/>
 Step 2: Import the project <br/>
-Step 3: Import necessary jars (db40 jar) <br/>
+Step 3: Import necessary jars (db4o jar) <br/>
 Step 4: Run the project <br/>
