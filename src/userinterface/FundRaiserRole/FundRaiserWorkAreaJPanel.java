@@ -1,0 +1,350 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package userinterface.FundRaiserRole;
+
+import Business.Application.Application;
+import Business.Application.SplitVolunteerRequest;
+import Business.Enterprise.Enterprise;
+import Business.Organization.FundRaiserOrganization;
+import Business.Organization.PayeeOrganization;
+import Business.UserAccount.UserAccount;
+import Business.WorkQueue.WorkRequest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.table.DefaultTableModel;
+import Business.Utils.BusinessStatus;
+import Business.Utils.BusinessUtils;
+import java.awt.CardLayout;
+import org.apache.log4j.Logger;
+import userinterface.DigitalMarketingRole.DigitalMarketingWorkAreaRequestDetailsJPanel;
+import userinterface.MainJFrame;
+import userinterface.NgoRole.NgoWorkAreaJPanel;
+import userinterface.PayerRole.PayerWorkAreaJPanel;
+import userinterface.WalletDialogBox.TopUp;
+/**
+ *
+ * @author apple
+ */
+public class FundRaiserWorkAreaJPanel extends javax.swing.JPanel {
+
+    /**
+     * Creates new form FundRaiserWorkAreaJPanel
+     */
+    private JPanel userProcessContainer;
+    private Enterprise enterprise;
+    private UserAccount userAccount;
+    private FundRaiserOrganization fundraiserOrg;
+    final Logger logger = Logger.getLogger(MainJFrame.class);
+    
+    public FundRaiserWorkAreaJPanel(JPanel userProcessContainer, UserAccount account, FundRaiserOrganization fundRaiserOrganization, Enterprise enterprise) {
+        initComponents();
+        this.userProcessContainer = userProcessContainer;
+        this.enterprise = enterprise;
+        this.userAccount = account;
+        this.fundraiserOrg = fundRaiserOrganization;
+        
+        //welcome user
+        welcomeLbl.setText("Welcome "+account.getEmployee().getName().toUpperCase()+"!");
+        
+        //populating the wallet amount
+        lblWalletAmt.setText("Wallet money: "+Double.toString(account.getWalletMoney()));
+        
+        //Populating the combo box
+        for(int i=0;i<=12;i++){
+            comboPayeeReq.addItem(BusinessStatus.values()[i].toString());
+        }
+        
+        this.populateTable();
+    }
+    
+    public void refresh(){
+        lblWalletAmt.setText("Wallet money: "+Double.toString(userAccount.getWalletMoney()));
+    }
+    
+    public void populateTable(){
+        DefaultTableModel model = (DefaultTableModel)tblFundRaiser.getModel();
+        
+        model.setRowCount(0);
+        
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        
+        for(WorkRequest request : fundraiserOrg.getWorkQueue().getWorkRequestList()){
+            if(!(request instanceof SplitVolunteerRequest) && 
+                 request.getSender().getEmployee().getId() != userAccount.getEmployee().getId()) {
+                Object[] row = new Object[6];
+                row[0] = request;
+                row[1] = ((Application)request).getCause();
+                
+                String date = dateFormat.format(request.getRequestDate());
+                
+                row[2] = date;
+                if(((Application)request).getRequiredBy() != null){
+                    row[3] = dateFormat.format(((Application)request).getRequiredBy());
+                }
+                row[4] = request.getStatus();
+                if(((Application)request).getAmountRequested() != null){
+                    row[5] = ((Application)request).getAmountRequested();
+                }
+
+                model.addRow(row);
+            }
+        }
+    }
+    
+    private void filterPopulateTable(String s){
+        //BusinessStatus.BckgrdChkReq.getValue()
+        
+        DefaultTableModel model = (DefaultTableModel)tblFundRaiser.getModel();
+        
+        model.setRowCount(0);
+        
+        DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy");
+        
+        for(WorkRequest request : fundraiserOrg.getWorkQueue().getWorkRequestList()){
+            if(request.getStatus().equals(s) && request.getSender().getEmployee().getId() != userAccount.getEmployee().getId()){
+            Object[] row = new Object[6];
+            row[0] = request;
+            row[1] = ((Application)request).getCause();
+            row[2] = dateFormat.format(request.getRequestDate());
+            if(((Application)request).getRequiredBy() != null){
+                row[3] = dateFormat.format(((Application)request).getRequiredBy());
+            }
+            row[4] = request.getStatus();
+            row[5] = ((Application)request).getAmountRequested();
+            
+            model.addRow(row);
+            }
+        }
+        
+    }
+    
+    /**
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    @SuppressWarnings("unchecked")
+    // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
+    private void initComponents() {
+
+        welcomeLbl = new javax.swing.JLabel();
+        jLabel1 = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        tblFundRaiser = new javax.swing.JTable();
+        jButton1 = new javax.swing.JButton();
+        lblWalletAmt = new javax.swing.JLabel();
+        btnTopUp = new javax.swing.JButton();
+        comboPayeeReq = new javax.swing.JComboBox<>();
+        jLabel6 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+
+        setBackground(new java.awt.Color(204, 204, 255));
+        setLayout(null);
+
+        welcomeLbl.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
+        welcomeLbl.setText("Welcome");
+        add(welcomeLbl);
+        welcomeLbl.setBounds(86, 66, 480, 22);
+
+        jLabel1.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
+        jLabel1.setText("Recently submitted applications");
+        add(jLabel1);
+        jLabel1.setBounds(111, 220, 299, 22);
+
+        tblFundRaiser.setFont(new java.awt.Font("Lucida Grande", 0, 14)); // NOI18N
+        tblFundRaiser.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Payee", "Cause", "Requested Date", "Resolution Date", "Status", "Amount"
+            }
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        jScrollPane1.setViewportView(tblFundRaiser);
+
+        add(jScrollPane1);
+        jScrollPane1.setBounds(111, 324, 827, 178);
+
+        jButton1.setFont(new java.awt.Font("Lucida Grande", 1, 18)); // NOI18N
+        jButton1.setText("Proceed to Background check");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+        add(jButton1);
+        jButton1.setBounds(362, 531, 318, 77);
+
+        lblWalletAmt.setFont(new java.awt.Font("Lucida Grande", 2, 14)); // NOI18N
+        lblWalletAmt.setText("Wallet Amount: $x");
+        add(lblWalletAmt);
+        lblWalletAmt.setBounds(1058, 80, 148, 19);
+
+        btnTopUp.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        btnTopUp.setText("TopUp Wallet");
+        btnTopUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTopUpActionPerformed(evt);
+            }
+        });
+        add(btnTopUp);
+        btnTopUp.setBounds(1276, 66, 163, 48);
+
+        comboPayeeReq.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                comboPayeeReqItemStateChanged(evt);
+            }
+        });
+        comboPayeeReq.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboPayeeReqActionPerformed(evt);
+            }
+        });
+        add(comboPayeeReq);
+        comboPayeeReq.setBounds(765, 221, 173, 27);
+
+        jLabel6.setFont(new java.awt.Font("Lucida Grande", 2, 14)); // NOI18N
+        jLabel6.setText("Search by Status");
+        add(jLabel6);
+        jLabel6.setBounds(617, 224, 112, 17);
+
+        jButton2.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jButton2.setText("PAY");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        add(jButton2);
+        jButton2.setBounds(1185, 10, 120, 50);
+
+        jButton3.setFont(new java.awt.Font("Lucida Grande", 1, 14)); // NOI18N
+        jButton3.setText("REQUEST");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+        add(jButton3);
+        jButton3.setBounds(1310, 10, 130, 50);
+    }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = tblFundRaiser.getSelectedRow();
+        
+        if (selectedRow >= 0) {
+            WorkRequest ws = (WorkRequest) tblFundRaiser.getValueAt(selectedRow, 0);
+            
+            if(!ws.getStatus().equals(BusinessStatus.Submitted.getValue())){
+                JOptionPane.showMessageDialog(null, "Only Applications with status Submitted can be "
+                        + "sent to Background check!");
+                return;
+            }
+            
+            ws.setStatus(BusinessStatus.BckgrdChkReq.getValue());
+            
+            JOptionPane.showMessageDialog(null, "Background check for the application successfully requested!");
+
+            //Sending the email to the user
+            if(BusinessUtils.sendEmail(((Application)ws).getPayeeEmail()
+                ,"Your application for "+((Application)ws).getCause()+" cause is requested for background check!",
+                "Information regarding your new Fund Request").equals("unsuccessful")){
+//              return;
+            }
+        
+        } else {
+            JOptionPane.showMessageDialog(null, "Please select a row.");
+        }
+        
+        populateTable();
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnTopUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTopUpActionPerformed
+        // TODO add your handling code here:
+
+        TopUp t=new TopUp(this.userAccount,this);
+        t.setVisible(true);
+    }//GEN-LAST:event_btnTopUpActionPerformed
+
+    private void comboPayeeReqItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_comboPayeeReqItemStateChanged
+        // TODO add your handling code here:
+        if(comboPayeeReq.getSelectedItem().equals("Submitted")){
+            filterPopulateTable(BusinessStatus.Submitted.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.BckgrdChkReq.getValue())){
+            filterPopulateTable(BusinessStatus.BckgrdChkReq.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.BckgrdChkApp.getValue())){
+            filterPopulateTable(BusinessStatus.BckgrdChkApp.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.BckgrdChkRej.getValue())){
+            filterPopulateTable(BusinessStatus.BckgrdChkRej.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.Advertised.getValue())){
+            filterPopulateTable(BusinessStatus.Advertised.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.InProgress.getValue())){
+            filterPopulateTable(BusinessStatus.InProgress.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.Fulfilled.getValue())){
+            filterPopulateTable(BusinessStatus.Fulfilled.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.UnFulfilled.getValue())){
+            filterPopulateTable(BusinessStatus.UnFulfilled.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.ReadyToPick.getValue())){
+            filterPopulateTable(BusinessStatus.ReadyToPick.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.VInProgress.getValue())){
+            filterPopulateTable(BusinessStatus.VInProgress.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.VFulfilled.getValue())){
+            filterPopulateTable(BusinessStatus.VFulfilled.getValue());
+        }else if(comboPayeeReq.getSelectedItem().equals(BusinessStatus.VUnfulfilled.getValue())){
+            filterPopulateTable(BusinessStatus.VUnfulfilled.getValue());
+        }else{
+            populateTable();
+        }
+    }//GEN-LAST:event_comboPayeeReqItemStateChanged
+
+    private void comboPayeeReqActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboPayeeReqActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_comboPayeeReqActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        userProcessContainer.add("DigitalMarketingWorkAreaRequestDetailsJPanel",
+                    new NgoWorkAreaJPanel(userProcessContainer, userAccount, fundraiserOrg, enterprise));
+        layout.next(userProcessContainer);
+
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        CardLayout layout = (CardLayout) userProcessContainer.getLayout();
+        userProcessContainer.add("DigitalMarketingWorkAreaRequestDetailsJPanel",
+                    new PayerWorkAreaJPanel(userProcessContainer, userAccount, fundraiserOrg, enterprise));
+        layout.next(userProcessContainer);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+
+    // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnTopUp;
+    private javax.swing.JComboBox<String> comboPayeeReq;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblWalletAmt;
+    private javax.swing.JTable tblFundRaiser;
+    private javax.swing.JLabel welcomeLbl;
+    // End of variables declaration//GEN-END:variables
+}
